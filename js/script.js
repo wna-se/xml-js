@@ -78,8 +78,7 @@ $(document).ready(function() {
 
 		var Module = {
 			xml: xmlData,
-			schema: [schemaData],
-			arguments: ["--noout", "--schema", schemaFileName, xmlFileName]
+			schema: [schemaData]
 		};
 		
 		const
