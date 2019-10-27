@@ -78,9 +78,28 @@ $(document).ready(function() {
 
 		var Module = {
 			xml: xmlData,
-			schema: schemaData,
+			schema: [schemaData],
 			arguments: ["--noout", "--schema", schemaFileName, xmlFileName]
 		};
+		
+		const
+		    reLoc1 = /targetNamespace="([^"]+)"/,
+		    reLoc2 = /(\bimport\s+namespace="([^"]+)"\s+schemaLocation=")[^"]+/g,
+		    loc = {};
+		Module.schema = Module.schema.map((s, idx) => {
+		    // detect namespace defined by this schema
+		    const ns = reLoc1.exec(s);
+		    if (ns)
+			loc[ns[1]] = 'file_' + idx + '.xsd';
+		    // redirect imports of a known schema to the right file
+		    s = s.replace(reLoc2, (all, base, ns) => {
+			const file = loc[ns];
+			if (!file) return;
+			return base + file;
+		    });
+		    return s;
+		});
+		
 		var result = validateXML(Module);
 		xmlInfo(result, ".valfileoutput", ".valfiletext", ".console1");
 	});
